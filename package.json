@@ -1,0 +1,11 @@
+{
+  "name": "tmp",
+  "description": "",
+  "version": "0.1.0",
+  "dependencies": {
+    "aws-sdk": "^2.393.0"
+  },
+  "devDependencies": {
+    "serverless-appsync-plugin": "^1.0.9"
+  }
+}

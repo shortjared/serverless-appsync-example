@@ -1,0 +1,71 @@
+service: serverless-appsync-example # NOTE: update this with your service name
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+        - dynamodb:Query
+        - dynamodb:BatchGetItem
+        - dynamodb:BatchWriteItem
+        - dynamodb:WriteItem
+        - dynamodb:UpdateItem
+      Resource:
+        - 'Fn::GetAtt': [MyDynamoDBTable, Arn]
+
+custom:
+  appSync:
+    authenticationType: API_KEY
+    schema: schema.graphql
+    mappingTemplates:
+      - type: Mutation
+        dataSource: MyLambdaDataSource
+        field: myLambdaMutation
+        request: myLambdaMutation.request.vtl
+        response: myLambdaMutation.response.vtl
+    dataSources:
+      - type: AMAZON_DYNAMODB
+        name: MyDynamoDBTableDataSource
+        config:
+          tableName: { Ref: MyDynamoDBTable }
+      - type: AWS_LAMBDA
+        name: MyLambdaDataSource
+        config:
+          lambdaFunctionArn: { Fn::GetAtt: [MyLambdaSourceLambdaFunction, Arn] }
+  # appsync:
+  #   mappingTemplates:
+  #     - type: Mutation
+  #       field: myLambdaMutation
+  #       request:
+  #       response:
+  #   dataSources:
+  #     - type: AWS_LAMBDA
+  #       name: myLambdaDataSource
+  #       config:
+  #         lambdaFunctionArn: { Fn::GetAtt: [MyLambdaSourceLambdaFunction, Arn] }
+
+
+functions:
+  myLambdaSource:
+    handler: handler.hello
+
+
+# you can add CloudFormation resource templates here
+resources:
+  Resources:
+    MyDynamoDBTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        BillingMode: PAY_PER_REQUEST
+
+plugins:
+  - serverless-appsync-plugin

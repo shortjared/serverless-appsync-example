@@ -1,0 +1,26 @@
+type Mutation {
+    myLambdaMutation(
+      id: String!
+      exampleString: String!
+    ): MyItem!
+}
+
+type Subscription {
+    myLambdaMutationSubscribe: MyItem @aws_subscribe(mutations: ["myLambdaMutation"])
+}
+
+type MyItem {
+    id: String!
+    exampleString: String!
+    addedProp: String
+}
+
+type Query {
+    myLambdaQuery(id: String!): MyItem!
+}
+
+schema {
+    query: Query
+	mutation: Mutation
+	subscription: Subscription
+}
